@@ -1,0 +1,51 @@
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+const connectDB = require('./config/db');
+
+dotenv.config();
+connectDB();
+
+const app = express();
+
+app.use(cors({ origin: '*', credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use('/uploads', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
+
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/equipment', require('./routes/equipmentRoutes'));
+app.use('/api/teams', require('./routes/teamRoutes'));
+app.use('/api/requests', require('./routes/requestRoutes'));
+
+const frontendBuildPath = path.join(__dirname, '../frontend/build');
+if (fs.existsSync(frontendBuildPath)) {
+  app.use(express.static(frontendBuildPath));
+
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return res.status(404).json({ message: 'Not found' });
+    }
+    return res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.json({ message: 'GearGuard API is running!' });
+  });
+}
+
+const PORT = process.env.PORT || 5000;
+// Global error handler — ensure JSON responses on unexpected errors
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ success: false, message: err.message || 'Server error' });
+});
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
