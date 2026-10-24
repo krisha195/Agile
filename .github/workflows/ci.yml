@@ -1,5 +1,4 @@
-
-name: GearGuard CI
+name: GearGuard CI/CD Pipeline
 
 on:
   push:
@@ -7,9 +6,16 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  backend:
-    name: Backend Dependency Check
+  # =========================================================================
+  # 1. Backend Automated Testing
+  # =========================================================================
+  backend-tests:
+    name: Backend Tests (Node.js 20)
     runs-on: ubuntu-latest
 
     steps:
@@ -27,8 +33,15 @@ jobs:
         working-directory: ./backend
         run: npm ci
 
-  frontend:
-    name: Frontend Build
+      - name: Run backend automated tests
+        working-directory: ./backend
+        run: npm test
+
+  # =========================================================================
+  # 2. Frontend Automated Testing
+  # =========================================================================
+  frontend-tests:
+    name: Frontend Tests (Node.js 20)
     runs-on: ubuntu-latest
 
     steps:
@@ -46,8 +59,72 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
-      - name: Build React application
+      - name: Run frontend automated tests
         working-directory: ./frontend
         env:
-          CI: false
+          CI: true
+        run: npm test
+
+  # =========================================================================
+  # 3. Frontend Production Build Verification
+  # =========================================================================
+  frontend-build:
+    name: Frontend Production Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build React production bundle
+        working-directory: ./frontend
+        env:
+          CI: true
         run: npm run build
+
+  # =========================================================================
+  # 4. Continuous Deployment (CD)
+  # Triggered automatically ONLY on push to main after all tests and build pass
+  # =========================================================================
+  deploy:
+    name: Deploy Application
+    needs: [backend-tests, frontend-tests, frontend-build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trigger Automated Production Deployment
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_HOOK_URL" ]; then
+            echo "::warning title=Deployment Notice::DEPLOY_HOOK_URL secret is not configured in GitHub Repository Secrets."
+            echo "CI validation passed successfully. To enable automated CD, configure DEPLOY_HOOK_URL (e.g., Render or Railway Deploy Hook)."
+            exit 0
+          fi
+
+          echo "Triggering automated deployment webhook..."
+          HTTP_STATUS=$(curl -s -o deploy_response.txt -w "%{http_code}" -X POST "$DEPLOY_HOOK_URL")
+          cat deploy_response.txt
+          echo ""
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+            echo "Deployment webhook triggered successfully (HTTP $HTTP_STATUS)."
+          else
+            echo "::error::Deployment trigger failed with HTTP $HTTP_STATUS."
+            exit 1
+          fi
