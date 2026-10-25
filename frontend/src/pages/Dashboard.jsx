@@ -174,7 +174,7 @@ export default function Dashboard() {
         .db-logout:hover { border-color: #c0392b; color: #c0392b; background: rgba(192,57,43,0.06); }
 
         /* MAIN */
-        .db-main { margin-left: 248px; flex: 1; padding: 36px 40px; min-height: 100vh; }
+        .db-main { margin-left: 0; flex: 1; padding: 36px 40px; min-height: 100vh; }
 
         .db-topbar {
           display: flex; justify-content: space-between; align-items: flex-start;
@@ -312,50 +312,6 @@ export default function Dashboard() {
       `}</style>
 
       <div className="db-root">
-        {/* SIDEBAR */}
-        <aside className="db-sidebar">
-          <div className="db-logo">
-            <div className="db-logo-icon">⚙️</div>
-            <div>
-              <div className="db-logo-text">Gear<span>Guard</span></div>
-              <div className="db-logo-sub">Maintenance Tracker</div>
-            </div>
-          </div>
-
-          <nav className="db-nav">
-            <div className="db-nav-section">Main Menu</div>
-            {navItems
-              .filter(item => {
-                if (item.path === '/equipment' || item.path === '/teams' || item.path === '/users') return role === 'Admin' || role === 'Manager';
-                if (item.path === '/reports') return role === 'Admin';
-                return true;
-              })
-              .map(item => (
-                <div
-                  key={item.path}
-                  className={`db-nav-item ${window.location.pathname === item.path ? 'active' : ''}`}
-                  onClick={() => navigate(item.path)}
-                >
-                  <span className="db-nav-icon">{item.icon}</span>
-                  {item.label}
-                </div>
-              ))}
-          </nav>
-
-          <div className="db-sidebar-footer">
-            <div className="db-user-row">
-              <div className="db-avatar">{user?.fullName?.charAt(0)?.toUpperCase() || 'U'}</div>
-              <div>
-                <div className="db-user-name">{user?.fullName || 'User'}</div>
-                <div className="db-user-role">{user?.role || 'Member'}</div>
-              </div>
-            </div>
-            <button className="db-logout" onClick={handleLogout}>
-              <span>↩</span> Sign Out
-            </button>
-          </div>
-        </aside>
-
         {/* MAIN */}
         <main className="db-main">
           <div className="db-topbar">

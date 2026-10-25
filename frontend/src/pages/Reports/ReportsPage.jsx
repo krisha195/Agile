@@ -88,7 +88,7 @@ export default function ReportsPage() {
         .rp-logout { width: 100%; background: none; border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; color: #8a8680; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; padding: 9px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .rp-logout:hover { border-color: #c0392b; color: #c0392b; background: rgba(192,57,43,0.06); }
 
-        .rp-main { margin-left: 248px; flex: 1; padding: 36px 40px; }
+        .rp-main { margin-left: 0; flex: 1; padding: 36px 40px; }
         .rp-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
         .rp-page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 800; color: #1a1814; letter-spacing: -0.4px; }
         .rp-page-title span { color: #c8873a; }
@@ -120,40 +120,6 @@ export default function ReportsPage() {
       `}</style>
 
       <div className="rp-root">
-        <aside className="rp-sidebar">
-          <div className="rp-logo">
-            <div className="rp-logo-icon">⚙️</div>
-            <div>
-              <div className="rp-logo-text">Gear<span>Guard</span></div>
-              <div className="rp-logo-sub">Maintenance Tracker</div>
-            </div>
-          </div>
-          <nav className="rp-nav">
-            <div className="rp-nav-section">Main Menu</div>
-            {navItems.filter(item => {
-              if (item.path === '/equipment' || item.path === '/teams' || item.path === '/users') return role === 'Admin' || role === 'Manager';
-              if (item.path === '/reports') return role === 'Admin';
-              return true;
-            }).map(item => (
-              <div key={item.path} className={`rp-nav-item ${window.location.pathname === item.path ? 'active' : ''}`} onClick={() => navigate(item.path)}>
-                <span className="rp-nav-icon">{item.icon}</span>{item.label}
-              </div>
-            ))}
-          </nav>
-          <div className="rp-sidebar-footer">
-            <div className="rp-user-row">
-              <div className="rp-avatar">{user?.fullName?.charAt(0)?.toUpperCase() || 'U'}</div>
-              <div>
-                <div className="rp-user-name">{user?.fullName || 'User'}</div>
-                <div className="rp-user-role">{user?.role || 'Member'}</div>
-              </div>
-            </div>
-            <button className="rp-logout" onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); navigate('/login'); }}>
-              <span>↩</span> Sign Out
-            </button>
-          </div>
-        </aside>
-
         <main className="rp-main">
           <div className="rp-topbar">
             <div>

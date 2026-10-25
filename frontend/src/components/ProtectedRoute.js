@@ -4,12 +4,13 @@
 
 import { Navigate } from 'react-router-dom';
 import authService from '../services/authService';
+import AppLayout from './AppLayout';
 
 // ─── BASIC PROTECTED ROUTE ─────────────────────────────────────────────────
 // Usage: <ProtectedRoute element={<Dashboard />} />
 const ProtectedRoute = ({ element }) => {
   const loggedIn = authService.isLoggedIn();
-  return loggedIn ? element : <Navigate to="/login" replace />;
+  return loggedIn ? <AppLayout>{element}</AppLayout> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;
@@ -24,12 +25,12 @@ export const RoleProtectedRoute = ({ element, allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
- const role = localStorage.getItem("role");
-const hasRole = allowedRoles.includes(role);
+  const role = localStorage.getItem("role");
+  const hasRole = allowedRoles.includes(role);
  
-if (!hasRole) {
+  if (!hasRole) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return element;
+  return <AppLayout>{element}</AppLayout>;
 };
