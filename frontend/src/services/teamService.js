@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || '';
+const rawBaseUrl = process.env.REACT_APP_API_URL || '';
+const API_BASE_URL = rawBaseUrl.replace(/\/api\/?$/, '').replace(/\/+$/, '');
 const API_URL = `${API_BASE_URL}/api/teams`;
 
 // Get token from localStorage

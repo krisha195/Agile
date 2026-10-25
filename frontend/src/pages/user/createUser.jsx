@@ -7,7 +7,8 @@ const DEPARTMENTS = ['IT', 'Engineering', 'Facilities', 'Operations', 'HR', 'Fin
 export default function CreateUser() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
-  const API_BASE_URL = process.env.REACT_APP_API_URL || '';
+  const rawBaseUrl = process.env.REACT_APP_API_URL || '';
+  const API_BASE_URL = rawBaseUrl.replace(/\/api\/?$/, '').replace(/\/+$/, '');
 
   const [form, setForm] = useState({
     fullName: '', username: '', email: '',

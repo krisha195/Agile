@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import requestService from '../../services/requestService';
 
-const API_BASE = process.env.REACT_APP_API_URL || '';
+const rawBaseUrl = process.env.REACT_APP_API_URL || '';
+const API_BASE = rawBaseUrl.replace(/\/api\/?$/, '').replace(/\/+$/, '');
 
 export default function RequestDetails() {
   const { id } = useParams();

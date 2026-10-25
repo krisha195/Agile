@@ -1,7 +1,8 @@
 // authService.js
 // Handles all API calls related to authentication
 // If REACT_APP_API_URL is set use it, otherwise use relative path so frontend follows same origin in production
-const API_BASE_URL = process.env.REACT_APP_API_URL || '';
+const rawBaseUrl = process.env.REACT_APP_API_URL || '';
+const API_BASE_URL = rawBaseUrl.replace(/\/api\/?$/, '').replace(/\/+$/, '');
 const API_URL = `${API_BASE_URL}/api/auth`;
 
 // ─── Helper: get token from localStorage ───────────────────────────────────

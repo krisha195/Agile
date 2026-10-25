@@ -12,7 +12,7 @@ RUN npm ci
 COPY . .
 
 ENV CI=false
-ENV REACT_APP_API_URL=/api
+ENV REACT_APP_API_URL=""
 
 RUN npm run build
 
