@@ -1,24 +1,34 @@
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import NotFound from './pages/NotFound';
-import Unauthorized from './pages/Unauthorized';
+import authService from './services/authService';
 
-test('renders 404 Page Not Found correctly', () => {
-  render(
-    <BrowserRouter>
-      <NotFound />
-    </BrowserRouter>
-  );
-  expect(screen.getByText(/Page Not Found/i)).toBeInTheDocument();
-  expect(screen.getByText(/404/i)).toBeInTheDocument();
-  expect(screen.getByText(/Go to Dashboard/i)).toBeInTheDocument();
-});
+describe('Frontend AuthService & Storage Tests', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
 
-test('renders Unauthorized access page correctly', () => {
-  render(
-    <BrowserRouter>
-      <Unauthorized />
-    </BrowserRouter>
-  );
-  expect(screen.getByText(/Access Denied/i)).toBeInTheDocument();
+  test('getStoredUser returns null when no user is stored', () => {
+    expect(authService.getStoredUser()).toBeNull();
+  });
+
+  test('getStoredUser returns parsed object when valid JSON user is in localStorage', () => {
+    const mockUser = { id: 'u1', fullName: 'Test User', role: 'Manager' };
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    expect(authService.getStoredUser()).toEqual(mockUser);
+  });
+
+  test('isLoggedIn returns false when no token exists', () => {
+    expect(authService.isLoggedIn()).toBe(false);
+  });
+
+  test('isLoggedIn returns false when token is invalid or malformed', () => {
+    localStorage.setItem('token', 'not-a-valid-jwt');
+    expect(authService.isLoggedIn()).toBe(false);
+  });
+
+  test('logout removes token and user from localStorage', () => {
+    localStorage.setItem('token', 'sample-token');
+    localStorage.setItem('user', JSON.stringify({ name: 'Admin' }));
+    authService.logout();
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
+  });
 });

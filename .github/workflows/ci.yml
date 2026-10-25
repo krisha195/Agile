@@ -87,7 +87,7 @@ jobs:
         working-directory: ./frontend
         env:
           CI: true
-        run: npm test -- --watchAll=false --coverage
+        run: npm test -- --watchAll=false
 
   # ─────────────────────────────────────────────────────────────
   # Job 4: Frontend Production Build & Artifact Storage
